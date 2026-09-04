@@ -8,114 +8,42 @@
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 18 + Vite |
-| Backend | Python FastAPI |
-| Database | PostgreSQL 16 |
-| Vector DB | Qdrant |
+| Frontend | React 18 + Vite (Dark Glassmorphism) |
+| Backend | Python FastAPI (Async) |
+| Database | PostgreSQL 16 (Port 5433) |
+| Vector DB | Qdrant (Port 6333) |
 | Embeddings | Sentence Transformers (`all-MiniLM-L6-v2`) |
-| LLM | Google Gemini 1.5 Flash |
-| Styling | Vanilla CSS (dark glassmorphism) |
+| LLM | Google Gemini 3.6 Flash |
+| Styling | Vanilla CSS (Dark Glassmorphism design system) |
 
 ---
 
-## Quick Start
+## Quick Start (1-Click)
 
-### 1. Start Infrastructure
+### 1. Launch Everything
 
+Simply double-click:
 ```bash
-docker-compose up -d
+start.bat
 ```
-This starts PostgreSQL (port 5432) and Qdrant (port 6333).
+*(or run `.\start.bat` in PowerShell)*
 
-### 2. Backend Setup
+This automatically starts Docker containers (PostgreSQL & Qdrant), boots the FastAPI backend (`http://localhost:8000`), launches the Vite frontend (`http://localhost:5173`), and opens your browser.
 
-```bash
-cd backend
-
-# Create virtual environment
-python -m venv .venv
-.venv\Scripts\activate  # Windows
-# source .venv/bin/activate  # macOS/Linux
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment
-copy ..\\.env.example .env
-# Edit .env and fill in GEMINI_API_KEY and other values
-
-# Run migrations
-alembic upgrade head
-
-# Start API server
-uvicorn app.main:app --reload --port 8000
-```
-
-API docs available at: http://localhost:8000/api/docs
-
-### 3. Frontend Setup
-
-```bash
-cd frontend
-
-npm install
-npm run dev
-```
-
-App available at: http://localhost:5173
+To stop all services when finished, double-click `stop.bat`.
 
 ---
 
-## Project Structure
+## Features
 
-```
-RAG_application/
-├── docker-compose.yml          # PostgreSQL + Qdrant
-├── .env.example                # Environment variables template
-├── .gitignore
-├── README.md
-│
-├── frontend/                   # React + Vite
-│   └── src/
-│       ├── api/                # Axios API client
-│       ├── components/         # UI components
-│       ├── pages/              # Route-level pages
-│       └── store/              # Zustand state stores
-│
-└── backend/                    # FastAPI
-    ├── alembic/                # DB migrations
-    ├── app/
-    │   ├── api/v1/             # REST endpoints
-    │   ├── core/               # Config, security
-    │   ├── db/                 # DB engine, session
-    │   ├── models/             # SQLAlchemy ORM
-    │   ├── schemas/            # Pydantic schemas
-    │   └── services/           # Business logic stubs
-    └── requirements.txt
-```
-
----
-
-## Features (Phase 1)
-
-- ✅ Complete project structure and architecture
-- ✅ All database models (User, KnowledgeBase, Document, DocumentChunk, Conversation, ChatMessage)
-- ✅ RESTful API with full CRUD for all entities
-- ✅ Document upload endpoint (PDF, DOCX, TXT, CSV)
-- ✅ Dark glassmorphism React UI with 6 pages
-- ✅ Conversation sidebar + chat interface with citation cards
-- ✅ Mock data for all UI components
-- ✅ Alembic migrations
-
-## Phase 2 (Coming Next)
-
-- [ ] Document text extraction (PyMuPDF, python-docx, pandas)
-- [ ] Text chunking with sentence boundary awareness
-- [ ] Sentence Transformers embedding generation
-- [ ] Qdrant vector upsert + semantic search
-- [ ] Gemini API integration for grounded answers
-- [ ] Real-time processing status polling
-- [ ] JWT authentication
+- ✅ **Full-Stack Architecture:** Decoupled FastAPI backend and React frontend.
+- ✅ **Multi-Format Ingestion:** Extracts text from PDF (PyMuPDF), Word (python-docx), TXT, and CSV (pandas).
+- ✅ **Local Vector Embeddings:** Zero-cost semantic vector generation using `all-MiniLM-L6-v2`.
+- ✅ **Vector Similarity Search:** High-performance Qdrant vector indexing and filtering by knowledge base.
+- ✅ **Grounded Generation:** Google Gemini 3.6 Flash integration with strict context citations and source attribution.
+- ✅ **Multi-Knowledge Base Support:** Organize documents and chat history into separate collections.
+- ✅ **Real-Time Asynchronous Processing:** Background document processing with live status polling.
+- ✅ **PostgreSQL Database:** Complete relational schema with Alembic migrations.
 
 ---
 
