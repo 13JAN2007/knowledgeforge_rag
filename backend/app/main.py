@@ -20,6 +20,14 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"[WARNING] Qdrant not available at startup (will retry on first use): {e}")
 
+    # Warm up embedding model in background so startup is non-blocking
+    try:
+        import asyncio
+        from app.services.embedding_service import embedding_service
+        asyncio.create_task(asyncio.to_thread(embedding_service._get_model))
+    except Exception as e:
+        print(f"[WARNING] Embedding model warmup skipped: {e}")
+
     yield
 
     # ── Shutdown ───────────────────────────────────────────────────────────

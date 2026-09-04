@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, Loader, Sparkles } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 import CitationCard from './CitationCard'
 import './ChatInterface.css'
 
@@ -20,7 +23,12 @@ function MessageBubble({ message }) {
             <p>{message.content}</p>
           ) : (
             <div className="chat-message-markdown">
-              <ReactMarkdown>{message.content}</ReactMarkdown>
+              <ReactMarkdown
+                remarkPlugins={[remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+              >
+                {message.content}
+              </ReactMarkdown>
             </div>
           )}
         </div>

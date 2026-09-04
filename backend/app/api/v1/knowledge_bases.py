@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from app.db.session import get_db
 from app.models.knowledge_base import KnowledgeBase
+from app.models.document import Document
+from app.models.document_chunk import DocumentChunk
 from app.schemas.knowledge_base import (
     KnowledgeBaseCreate,
     KnowledgeBaseUpdate,
@@ -37,9 +39,19 @@ async def list_knowledge_bases(
         .limit(limit)
     )
     kbs = result.scalars().all()
-    return KnowledgeBaseListResponse(
-        items=[KnowledgeBaseResponse.model_validate(kb) for kb in kbs], total=total
-    )
+    items = []
+    for kb in kbs:
+        doc_count = (await db.execute(
+            select(func.count()).select_from(Document).where(Document.knowledge_base_id == kb.id)
+        )).scalar_one()
+        chunk_count = (await db.execute(
+            select(func.count()).select_from(DocumentChunk).where(DocumentChunk.knowledge_base_id == kb.id)
+        )).scalar_one()
+        kb.document_count = doc_count
+        kb.chunk_count = chunk_count
+        items.append(KnowledgeBaseResponse.model_validate(kb))
+
+    return KnowledgeBaseListResponse(items=items, total=total)
 
 
 @router.post("", response_model=KnowledgeBaseResponse, status_code=status.HTTP_201_CREATED)
@@ -69,6 +81,15 @@ async def get_knowledge_base(kb_id: str, db: AsyncSession = Depends(get_db)):
     kb = result.scalar_one_or_none()
     if not kb:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Knowledge base not found")
+    
+    doc_count = (await db.execute(
+        select(func.count()).select_from(Document).where(Document.knowledge_base_id == kb.id)
+    )).scalar_one()
+    chunk_count = (await db.execute(
+        select(func.count()).select_from(DocumentChunk).where(DocumentChunk.knowledge_base_id == kb.id)
+    )).scalar_one()
+    kb.document_count = doc_count
+    kb.chunk_count = chunk_count
     return KnowledgeBaseResponse.model_validate(kb)
 
 

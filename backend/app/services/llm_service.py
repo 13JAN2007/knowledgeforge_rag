@@ -12,8 +12,13 @@ Rules:
 - Only use information from the provided context.
 - If the context doesn't contain enough information, say so clearly — do not make things up.
 - Always reference which source you are drawing from (e.g. "According to [document name], page X...").
-- Be concise, accurate, and helpful.
-- Format your response using markdown when it improves readability (lists, bold, code blocks).
+- Provide thorough, complete answers. Never leave questions, formulas, derivations, or sentences unfinished or truncated.
+- Mathematical and scientific expressions:
+  * Always format mathematical formulas using standard LaTeX notation.
+  * Use inline math with single dollar signs: `$ ... $` (e.g., `$\\cot \\theta = \\frac{20}{21}$`, `$\\triangle ABC$`).
+  * Use display math blocks with double dollar signs: `$$ ... $$` for standalone equations, fractions, and multi-step derivations.
+  * Always provide the complete formula, statement, and step-by-step solution without cutting off.
+- Format your response using clean, readable markdown (headings, bullet points, bold text).
 - Do not repeat the question back to the user."""
 
 
@@ -32,6 +37,10 @@ class LLMService:
             self._model = genai.GenerativeModel(
                 model_name=settings.gemini_model,
                 system_instruction=SYSTEM_PROMPT,
+                generation_config={
+                    "temperature": 0.2,
+                    "max_output_tokens": 4096,
+                },
             )
             print(f"[OK] Gemini model '{settings.gemini_model}' initialized")
         return self._model

@@ -156,4 +156,19 @@ async def delete_document(kb_id: str, doc_id: str, db: AsyncSession = Depends(ge
         pass
 
     await db.delete(doc)
-    await db.flush()
+
+    # Recalculate KB document_count and chunk_count
+    kb_res = await db.execute(select(KnowledgeBase).where(KnowledgeBase.id == kb_id))
+    kb = kb_res.scalar_one_or_none()
+    if kb:
+        doc_count = (await db.execute(
+            select(func.count()).select_from(Document).where(Document.knowledge_base_id == kb_id, Document.id != doc_id)
+        )).scalar_one()
+        from app.models.document_chunk import DocumentChunk
+        chunk_count = (await db.execute(
+            select(func.count()).select_from(DocumentChunk).where(DocumentChunk.knowledge_base_id == kb_id, DocumentChunk.document_id != doc_id)
+        )).scalar_one()
+        kb.document_count = doc_count
+        kb.chunk_count = chunk_count
+
+    await db.commit()

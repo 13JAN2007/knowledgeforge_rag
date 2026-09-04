@@ -15,7 +15,10 @@ class EmbeddingService:
         if self._model is None:
             print(f"[INFO] Loading embedding model: {settings.embedding_model}")
             from sentence_transformers import SentenceTransformer
-            self._model = SentenceTransformer(settings.embedding_model)
+            try:
+                self._model = SentenceTransformer(settings.embedding_model, local_files_only=True)
+            except Exception:
+                self._model = SentenceTransformer(settings.embedding_model)
             print("[OK] Embedding model loaded")
         return self._model
 
